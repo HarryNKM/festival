@@ -1,7 +1,11 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:flutter/services.dart';
 import 'package:image_gallery_saver/image_gallery_saver.dart';
+import 'package:path_provider/path_provider.dart';
+import 'package:share_plus/share_plus.dart';
 import 'dart:ui' as ui;
 
 import '../../modal/modal.dart';
@@ -18,6 +22,12 @@ class _EditPostScreenState extends State<EditPostScreen> {
   List<Color> changebg = [Colors.black, Colors.white, ...Colors.accents];
   Color txtcolor = Colors.black;
   Color bgcolor = Colors.grey;
+  List<String> changeimg=[
+    "assets/images/holi1.jpg",
+    "assets/images/holi2.jpg",
+    "assets/images/holi3.jpg",
+    "assets/images/holi4.jpg",
+  ];
   bool istxt = true;
   GlobalKey repaintkey = GlobalKey();
 
@@ -38,11 +48,30 @@ class _EditPostScreenState extends State<EditPostScreen> {
         ),
         centerTitle: true,
         actions: [
-          IconButton(onPressed: () {
-            Navigator.pushNamed(context, 'info');
-          }, icon: Icon(Icons.person),),
           IconButton(
-            onPressed: () {},
+            onPressed: () {
+              Navigator.pushNamed(context, 'info');
+            },
+            icon: Icon(Icons.person),
+          ),
+          IconButton(
+            onPressed: () async {
+              RenderRepaintBoundary boundry = repaintkey.currentContext!
+                  .findRenderObject() as RenderRepaintBoundary;
+              ui.Image image = await boundry.toImage();
+              ByteData? bytedata =
+                  await image.toByteData(format: ui.ImageByteFormat.png);
+              Uint8List data = bytedata!.buffer.asUint8List();
+
+              await ImageGallerySaver.saveImage(data);
+
+              Directory dir = await getTemporaryDirectory();
+              await Share.shareXFiles(
+                [
+                  XFile(dir.path),
+                ],
+              );
+            },
             icon: const Icon(
               Icons.share,
               color: Colors.white,
@@ -82,10 +111,7 @@ class _EditPostScreenState extends State<EditPostScreen> {
                 alignment: Alignment.center,
                 child: SelectableText(
                   "${data.wishes}",
-                  style: TextStyle(
-                    color: txtcolor,
-                    fontSize: 18
-                  ),
+                  style: TextStyle(color: txtcolor, fontSize: 18),
                 ),
               ),
             ),
@@ -103,11 +129,13 @@ class _EditPostScreenState extends State<EditPostScreen> {
                   },
                   child: Text("Text"),
                 ),
-                ElevatedButton(onPressed: () {
-                  setState(() {
-                    istxt=false;
-                  });
-                }, child: Text("BG"))
+                ElevatedButton(
+                    onPressed: () {
+                      setState(() {
+                        istxt = false;
+                      });
+                    },
+                    child: Text("BG"))
               ],
             ),
             const SizedBox(
@@ -187,7 +215,6 @@ class _EditPostScreenState extends State<EditPostScreen> {
                     const SizedBox(
                       height: 20,
                     ),
-
                   ],
                 ),
               ),
