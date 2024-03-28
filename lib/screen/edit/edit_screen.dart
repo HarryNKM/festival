@@ -1,14 +1,14 @@
 import 'dart:io';
 
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter/widgets.dart';
 import 'package:image_gallery_saver/image_gallery_saver.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:share_plus/share_plus.dart';
 import 'dart:ui' as ui;
-
-import '../../modal/modal.dart';
 
 class EditPostScreen extends StatefulWidget {
   const EditPostScreen({super.key});
@@ -22,21 +22,24 @@ class _EditPostScreenState extends State<EditPostScreen> {
   List<Color> changebg = [Colors.black, Colors.white, ...Colors.accents];
   Color txtcolor = Colors.black;
   Color bgcolor = Colors.grey;
-  List<String> changeimg=[
+  String? img = "";
+  List<String> changeimg = [
     "assets/images/holi1.jpg",
     "assets/images/holi2.jpg",
     "assets/images/holi3.jpg",
     "assets/images/holi4.jpg",
   ];
   bool istxt = true;
+  bool isImg = false;
+
   GlobalKey repaintkey = GlobalKey();
 
   @override
   Widget build(BuildContext context) {
-    MaptoModel data = ModalRoute.of(context)!.settings.arguments as MaptoModel;
+    List data = ModalRoute.of(context)!.settings.arguments as List;
     return Scaffold(
       appBar: AppBar(
-        iconTheme: IconThemeData(color: Colors.white),
+        iconTheme: const IconThemeData(color: Colors.white),
         backgroundColor: Colors.pinkAccent,
         title: const Text(
           "Edit post",
@@ -52,7 +55,7 @@ class _EditPostScreenState extends State<EditPostScreen> {
             onPressed: () {
               Navigator.pushNamed(context, 'info');
             },
-            icon: Icon(Icons.person),
+            icon: const Icon(Icons.person),
           ),
           IconButton(
             onPressed: () async {
@@ -71,6 +74,14 @@ class _EditPostScreenState extends State<EditPostScreen> {
                   XFile(dir.path),
                 ],
               );
+              ScaffoldMessenger.of(context).showSnackBar(
+                const SnackBar(
+                  content: Text("Image Shared"),
+                  backgroundColor: Colors.pinkAccent,
+                  behavior: SnackBarBehavior.floating,
+                  duration: Duration(seconds: 2),
+                ),
+              );
             },
             icon: const Icon(
               Icons.share,
@@ -87,6 +98,15 @@ class _EditPostScreenState extends State<EditPostScreen> {
               Uint8List data = bytedata!.buffer.asUint8List();
 
               await ImageGallerySaver.saveImage(data);
+
+              ScaffoldMessenger.of(context).showSnackBar(
+                const SnackBar(
+                  content: Text("Image Saved"),
+                  backgroundColor: Colors.pinkAccent,
+                  behavior: SnackBarBehavior.floating,
+                  duration: Duration(seconds: 2),
+                ),
+              );
             },
             icon: const Icon(
               Icons.download,
@@ -102,18 +122,32 @@ class _EditPostScreenState extends State<EditPostScreen> {
             RepaintBoundary(
               key: repaintkey,
               child: Container(
-                padding: EdgeInsets.all(20),
-                height: MediaQuery.sizeOf(context).width,
-                width: MediaQuery.sizeOf(context).width,
-                decoration: BoxDecoration(
-                  color: bgcolor,
-                ),
-                alignment: Alignment.center,
-                child: SelectableText(
-                  "${data.wishes}",
-                  style: TextStyle(color: txtcolor, fontSize: 18),
-                ),
-              ),
+                  height: MediaQuery.sizeOf(context).width,
+                  width: MediaQuery.sizeOf(context).width,
+                  decoration: BoxDecoration(
+                    color: bgcolor,
+                  ),
+                  alignment: Alignment.center,
+                  child: Stack(
+                    children: [
+                      Visibility(
+                        visible: isImg,
+                        child: Image.asset(
+                          img!,
+                          fit: BoxFit.cover,
+                          height: MediaQuery.sizeOf(context).width,
+                          width: MediaQuery.sizeOf(context).width,
+                        ),
+                      ),
+                      Padding(
+                        padding: const EdgeInsets.all(8.0),
+                        child: Text(
+                          "${data[1]['wishes']}",
+                          style: TextStyle(fontSize: 20),
+                        ),
+                      )
+                    ],
+                  )),
             ),
             const SizedBox(
               height: 20,
@@ -127,7 +161,7 @@ class _EditPostScreenState extends State<EditPostScreen> {
                       istxt = true;
                     });
                   },
-                  child: Text("Text"),
+                  child: const Text("Text"),
                 ),
                 ElevatedButton(
                     onPressed: () {
@@ -135,7 +169,7 @@ class _EditPostScreenState extends State<EditPostScreen> {
                         istxt = false;
                       });
                     },
-                    child: Text("BG"))
+                    child: const Text("BG"))
               ],
             ),
             const SizedBox(
@@ -193,6 +227,7 @@ class _EditPostScreenState extends State<EditPostScreen> {
                               setState(
                                 () {
                                   bgcolor = changebg[index];
+                                  isImg=false;
                                 },
                               );
                             },
@@ -219,6 +254,35 @@ class _EditPostScreenState extends State<EditPostScreen> {
                 ),
               ),
             ),
+            Visibility(
+              visible: !istxt,
+              child: SizedBox(
+                height: 100,
+                child: ListView.builder(
+                  scrollDirection: Axis.horizontal,
+                  itemCount: changeimg.length,
+                  itemBuilder: (context, index) {
+                    return InkWell(
+                      onTap: () {
+                        setState(() {
+                          isImg = true;
+                          img = changeimg[index];
+                        });
+                      },
+                      child: Container(
+                        height: 100,
+                        width: 80,
+                        margin: EdgeInsets.all(5),
+                        child: Image.asset(
+                          changeimg[index],
+                          fit: BoxFit.fill,
+                        ),
+                      ),
+                    );
+                  },
+                ),
+              ),
+            )
           ],
         ),
       ),

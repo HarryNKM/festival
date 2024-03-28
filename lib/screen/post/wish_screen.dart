@@ -1,24 +1,22 @@
 import 'package:flutter/material.dart';
-import '../../modal/modal.dart';
-import '../../utiles/global.dart';
 
-class PostScreen extends StatefulWidget {
-  const PostScreen({super.key});
+class WishScreen extends StatefulWidget {
+  const WishScreen({super.key});
 
   @override
-  State<PostScreen> createState() => _PostScreenState();
+  State<WishScreen> createState() => _WishScreenState();
 }
 
-class _PostScreenState extends State<PostScreen> {
+class _WishScreenState extends State<WishScreen> {
   @override
   Widget build(BuildContext context) {
-    Map m1 = ModalRoute.of(context)!.settings.arguments as Map;
+    List list = ModalRoute.of(context)!.settings.arguments as List;
     return Scaffold(
       appBar: AppBar(
-        iconTheme: IconThemeData(color: Colors.white),
+        iconTheme: const IconThemeData(color: Colors.white),
         backgroundColor: Colors.pinkAccent,
         title: Text(
-          "${m1['festival']} ",
+          "${list[0]['festival']} ",
           style: const TextStyle(
             color: Colors.white,
             fontWeight: FontWeight.bold,
@@ -28,18 +26,19 @@ class _PostScreenState extends State<PostScreen> {
         centerTitle: true,
       ),
       body: ListView.builder(
-        itemCount: g1.festivaldetail.length,
+        itemCount: list[1].length,
         itemBuilder: (context, index) {
           return Padding(
             padding: const EdgeInsets.all(10),
             child: InkWell(
               onTap: () {
-                MaptoModel data = g1.festivaldetail[index];
-                Navigator.pushNamed(context, 'edit', arguments: data);
+                List data =list[1][index];
+                Navigator.pushNamed(context, 'edit',
+                    arguments: [data, list[2]]);
               },
               child: Container(
                 alignment: Alignment.center,
-                padding: EdgeInsets.all(10),
+                padding: const EdgeInsets.all(10),
                 height: 150,
                 width: MediaQuery.sizeOf(context).width,
                 decoration: BoxDecoration(
@@ -47,8 +46,11 @@ class _PostScreenState extends State<PostScreen> {
                   borderRadius: BorderRadius.circular(20),
                 ),
                 child: Text(
-                  "${g1.festivaldetail[index].wishes}",
-                  style: TextStyle(color: Colors.white, fontSize: 20,overflow: TextOverflow.ellipsis),
+                  "${list[1][index]['wishes']}",
+                  style: const TextStyle(
+                      color: Colors.white,
+                      fontSize: 20,
+                      overflow: TextOverflow.ellipsis),
                 ),
               ),
             ),

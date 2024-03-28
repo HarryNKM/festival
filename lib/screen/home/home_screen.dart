@@ -11,8 +11,16 @@ class HomeScreen extends StatefulWidget {
 }
 
 class _HomeScreenState extends State<HomeScreen> {
+  List<List<String>> allimg = [
+    g1.Diwalimage,
+    g1.Ganeshimage,
+    g1.holimage,
+    g1.Republicimage,
+    g1.Utrayanimage
+  ];
+
   @override
-void initState() {
+  void initState() {
     // TODO: implement initState
     super.initState();
     g1.create();
@@ -32,22 +40,42 @@ void initState() {
           ),
         ),
         centerTitle: true,
-
       ),
-      body:
-      ListView.builder(
+      body: ListView.builder(
         itemCount: g1.Fname.length,
         itemBuilder: (context, index) {
           return InkWell(
             onTap: () {
-              Map m1 = g1.Fname[index];
-              Navigator.pushNamed(context, 'post',arguments: m1);
+              if (index == 0) {
+                Map m1 = g1.Fname[index];
+                Navigator.pushNamed(context, 'post',
+                    arguments: [m1, g1.Holi, g1.holimage]);
+              } else if (index == 1) {
+                Map m1 = g1.Fname[index];
+                Navigator.pushNamed(context, 'post',
+                    arguments: [m1, g1.Ganesh, g1.Ganeshimage]);
+              } else if (index == 2) {
+                Map m1 = g1.Fname[index];
+                Navigator.pushNamed(context, 'post',
+                    arguments: [m1, g1.Utrayan, g1.Utrayanimage]);
+              } else if (index == 3) {
+                Map m1 = g1.Fname[index];
+                Navigator.pushNamed(context, 'post',
+                    arguments: [m1, g1.Diwali, g1.Diwalimage]);
+              } else if (index == 4) {
+                Map m1 = g1.Fname[index];
+                Navigator.pushNamed(context, 'post',
+                    arguments: [m1, g1.Republic, g1.Republicimage]);
+              }
             },
             child: Container(
               padding: EdgeInsets.all(10),
-                width: MediaQuery.sizeOf(context).width,
-                decoration: BoxDecoration(color: Colors.white,shape: BoxShape.circle),
-                child: Image.asset("${g1.Fname[index]['image']}",),
+              width: MediaQuery.sizeOf(context).width,
+              decoration:
+                  BoxDecoration(color: Colors.white, shape: BoxShape.circle),
+              child: Image.asset(
+                "${g1.Fname[index]['image']}",
+              ),
             ),
           );
         },
